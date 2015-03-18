@@ -3,10 +3,14 @@ template <typename Object>
 class Vector 
 {
     public:
+        /*
+         *三大构造函数;
+         */
         explicit Vector(int initSize = 0)
             :theSize(initSize),theCapacity(initSize + SPARE_CAPACITY)
         { objects = new Object[theCapacity];}
-        Vector(const Vector &ths):objects(NULL)
+
+        Vector(const Vector &ths):objects(NULL) 
         {operator=(ths);}
             
         const Vector & operator=(const Vector &ths)
@@ -22,14 +26,19 @@ class Vector
             }
             return *this;
         }
+
         ~Vector()
         {delete [] objects;}
+
         int size() const 
         {return theSize;}
 
-        /*
-         *Vector支持数组方式的索引
-         */
+        int capacity() const
+        {return theCapacity;}
+        bool empty() const
+        {return size() == 0 ;}
+
+        //Vector支持数组方式的索引
         Object operator[]( int index)
         {
             return objects[index];
@@ -38,9 +47,26 @@ class Vector
         {
             return objects[index];
         }
-        /*
-         *扩容以及添加新的元素
-         */
+        //扩容策略,newSize>theCapacity时,扩容
+        void resize(int newSize)
+        {
+            if(newSize > theCapacity)
+                reserve(newSize *2 + 1);
+            theSize = newSize;
+        }
+
+        void reserve(int newCapacity)
+        {
+            if(newCapacity < theSize) //newCapacity<theSize,不扩容;
+                return ;
+            Object *oldArray = objects;
+            objects = new Object[newCapacity];
+            for(int i = 0; i < size(); i++){
+                objects[i] = oldArray[i];
+            }
+            theCapacity = newCapacity;
+        }
+
         void push_back(const Object &x)
         {
             if (theSize == theCapacity)
@@ -52,25 +78,17 @@ class Vector
         {
             theSize--;
         }
-        void reserve(int newCapacity)
-        {
-            if(newCapacity < theSize)
-                return ;
-            Object *oldArray = objects;
-            objects = new Object[newCapacity];
-            for(int i = 0; i < size(); i++){
-                objects[i] = oldArray[i];
-            }
-            theCapacity = newCapacity;
-        }
-        /*
-         *iterator 是Object对象的别名;；
-         */
+        //iterator 是Object对象的指针变量;
         typedef Object * iterator;
         typedef const Object * const_iterator;
         iterator begin()
         {return &objects[0];}
+        const_iterator begin() const
+        {return &objects[0];}
+
         iterator end()
+        {return &objects[size()];}
+        const_iterator end() const
         {return &objects[size()];}
 
 
@@ -82,18 +100,29 @@ class Vector
 };
 int main()
 {
-    Vector<int> vec(4);
-    std::cout << vec.size() << std::endl;
-    
-    for(int j = 0; j < 4; j++)
+    Vector<int> vec;
+
+    for(int j = 0; j != 5; j++)
     vec.push_back(j);
-    /*
-     *std::cout << vec[6] << std::endl;
-     */
-    
+    vec.pop_back();    
+
+    if(!vec.empty())
+        std::cout << "not empty:" << std::endl;
+    vec.resize(10);
+    std::cout << "vecresize:" << vec.size()
+    << "vecCapacity:" << vec.capacity() << std::endl;
+
+    vec.resize(17);
+    std::cout << "vecresize:" << vec.size() 
+    << "vecCapacity:" << vec.capacity() << std::endl;
+
+    vec.reserve(14);
+    std::cout << "vecresize:" << vec.size() 
+    << "vecCapacity:" << vec.capacity() << std::endl;
+
     Vector<int>::iterator it;
     for(it = vec.begin(); it != vec.end(); it++)
-        std::cout << *it++ << std::endl;
+        std::cout << *it << std::endl;
 
     return 0;
 }
