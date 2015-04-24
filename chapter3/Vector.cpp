@@ -1,6 +1,5 @@
 #include<iostream>
-template <typename Object>
-class Vector 
+template <typename Object> class Vector 
 {
     public:
         /*
@@ -11,7 +10,7 @@ class Vector
         { objects = new Object[theCapacity];}
 
         Vector(const Vector &ths):objects(NULL) 
-        {operator=(ths);}
+        { operator=(ths);} //函数调用方式
             
         const Vector & operator=(const Vector &ths)
         {
